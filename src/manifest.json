@@ -1,0 +1,13 @@
+{
+  "name": "RCSnail Play Demo",
+  "short_name": "RCS Demo",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#fff",
+  "lang": "en-US",
+  "description": "RCSnail Demo application.",
+  "prefer_related_applications": false,
+  "theme_color": "#fff",
+  "scope": "/",
+  "orientation": "portrait-primary"
+}

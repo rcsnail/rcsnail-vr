@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>RCSnail Play Demo v1.3</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
+    <script src="config.js"></script>
+    <script src="common.js"></script>
+    <!--script src="car.js"></script-->
+    <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+    <!--script src="https://aframe.io/releases/0.7.1/aframe.min.js"></script-->
+    <script src="dist/nipplejs.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div id="container">
+      <h3>RCSnail Play Demo</h3>
+      <div id="loading">Loading...</div>
+      <div id="loaded" class="hidden">
+        <div id="main">
+          <div id="user-signed-in" class="hidden">
+            <div>
+              <p>
+                <button id="add-to-queue">Add to Queue</button>
+                <button id="close-connection">Close connection</button>
+                <button id="sign-out">Sign Out</button>
+                <p/>
+                <button id="btn-fullscreen">Fullscreen</button>
+                <input type="checkbox" id="cb-accelerometer"/>Accelerometer
+                <!--button id="delete-account">Delete account</button-->
+              </p>      
+            </div>
+            <div id="joystick-zone" style="position:relative; width:100%; height:100%; z-index: 2147483647;">
+                <video id="remote-video" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline style="width: 100vw;"></video>
+            </div>
+            <div style="width: 640px; height: 360px;" class="hidden">
+              <a-scene embedded>
+                <a-assets>
+                  <video id="remote-video-vr" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline></video>
+                </a-assets>
+                <a-camera wasd-controls-enabled="false"></a-camera>
+                <!--
+                <a-videosphere src="#remote-video" rotation="0 180 0" /*play-on-window-click*/ >
+                </a-videosphere>
+          
+                <a-camera user-height="0" wasd-controls-enabled="false" arrow-key-rotation>
+                  <a-entity id="msg" position="0 -0.3 -1.5" text="align:center; 
+                          width:3;
+                          wrapCount:100;
+                          color: #FF8080;
+                          value:Please click window to start 360 video streaming."
+                          hide-once-playing="#remote-video">
+                  </a-entity>
+                </a-camera>   
+                -->
+
+                <a-video src="#remote-video-vr" width="16" height="9" position="0 1.5 -5"></a-video>
+                <!--a-entity geometry="primitive: sphere; thetaLength: 180; radius: 5000; segmentsWidth: 64; segmentsHeight: 20" scale="1 1 -1" material="src: #remote-video; shader: flat"></a-entity-->
+              </a-scene>              
+            </div>
+            <div id="control">{control}</div>
+            <div id="control-gamepad">{control-gamepad}</div>
+            <div id="user-info">
+              <div id="photo-container">
+                <img id="photo">
+              </div>
+              <div id="name"></div>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div id="user-signed-out" class="hidden">
+            <h4>You are signed out.</h4>
+            <div id="firebaseui-spa">
+              <h5>Single Page Application mode:</h5>
+              <div id="firebaseui-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
