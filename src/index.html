@@ -11,8 +11,17 @@
     <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
     <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
-    <!--script src="https://aframe.io/releases/0.7.1/aframe.min.js"></script-->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="dist/nipplejs.js"></script>
+    <!-- minu lisatud-->
+    <script src="https://unpkg.com/aframe-environment-component@1.2.0/dist/aframe-environment-component.min.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.2/dist/aframe-extras.min.js"></script>
+    <!--script-- src="https://unpkg.com/super-hands@^3.0.1/dist/super-hands.min.js"></script-->
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
+
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
@@ -33,16 +42,66 @@
                 <!--button id="delete-account">Delete account</button-->
               </p>      
             </div>
-            <div id="joystick-zone" style="position:relative; width:100%; height:100%; z-index: 2147483647;">
+
+            <!-- see on joistik
+            <div  id="joystick-zone" style="position:relative;" width:100%; height:100%; z-index: 2147483647;" class="hidden">
                 <video id="remote-video" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline style="width: 100vw;"></video>
             </div>
-            <div style="width: 640px; height: 360px;" class="hidden">
-              <a-scene embedded>
+            -->
+
+            <div id="joystick-zone" style="position:relative;" class="hidden">
+
+              <a-scene
+                      background="color: #212"
+                      webxr="referenceSpaceType: local"
+                      environment
+                      cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .raycastable">
+
                 <a-assets>
-                  <video id="remote-video-vr" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline></video>
+                  <video id="remote-video" autoplay preload="auto" crossorigin="anonymous" loop="true"></video>
+                  <a-asset-item id="steering_wheel_vr" src="wheel.glb"></a-asset-item>
+
+                </a-assets>
+
+                <a-entity id="leftHand" sphere-collider="objects: .steering" super-hands hand-controls="hand: left"></a-entity>
+                <a-entity id="rightHand" sphere-collider="objects: .steering" super-hands hand-controls="hand: right"></a-entity>
+
+                <a-entity
+                        id="background"
+                        position="0 0 0"
+                        geometry="primitive: sphere; radius: 2.0"
+                        material="color: red; side: back; shader: flat"
+                        scale="0.001 0.001 0.001"
+                        visible="false" class="raycastable">
+                </a-entity>
+
+
+                <a-entity camera look-controls position="0 1 0"></a-entity>
+
+                <a-entity class="steering" gltf-model="#steering_wheel_vr" static-body clickable position="0 1.2 -0.5"
+                          turnwheel ondragend="this.setAttribute('rotation', {x: 0, y: 0, z: 50})">
+
+                </a-entity>
+
+
+                <!-- https://stefie.github.io/aframe-curvedimage-calculator/ this for help -->
+                <a-cylinder radius="0.9"
+                            height="1.5"
+                            material="src: #remote-video; side: double"
+                            open-ended="true"
+                            theta-start="120"
+                            theta-length="120"
+                            position="0 1.5 0">
+                </a-cylinder>
+
+
+              </a-scene>
+              <!-- eelmine aframe a-scene embedded>
+                <a-assets>
+                  <video id="remote-video" crossorigin="anonymous" playsinline webkit-playsinline></video>
                 </a-assets>
                 <a-camera wasd-controls-enabled="false"></a-camera>
-                <!--
+
                 <a-videosphere src="#remote-video" rotation="0 180 0" /*play-on-window-click*/ >
                 </a-videosphere>
           
@@ -57,9 +116,38 @@
                 </a-camera>   
                 -->
 
-                <a-video src="#remote-video-vr" width="16" height="9" position="0 1.5 -5"></a-video>
+                <!-- <a-video src="#remote-video-vr" width="16" height="9" position="0 1.5 -5"></a-video-->
+                <!-- mina algan siit -->
                 <!--a-entity geometry="primitive: sphere; thetaLength: 180; radius: 5000; segmentsWidth: 64; segmentsHeight: 20" scale="1 1 -1" material="src: #remote-video; shader: flat"></a-entity-->
-              </a-scene>              
+
+
+
+                <!--a-assets>
+                  <a-asset-item id="steering_wheel_vr" src="C:\Users\Maidu\Desktop\rcsnail-vr\rool.glb"></a-asset-item>
+                </a-assets>
+
+
+                <a-entity camera look-controls positon="0 0 -1" ></a-entity>
+
+                <a-entity gltf-model="#steering_wheel_vr" position="0 -0.5 -1"></a-entity>
+
+
+                < https://stefie.github.io/aframe-curvedimage-calculator/ this for help >
+                <a-cylinder radius="0.9"
+                            height="1.5"
+                            material="src: #remote-video; side: double"
+                            open-ended="true"
+                            theta-start="120"
+                            theta-length="120"
+
+                ></a-cylinder>
+
+                <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
+                <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
+
+
+
+              </a-scene-->
             </div>
             <div id="control">{control}</div>
             <div id="control-gamepad">{control-gamepad}</div>
