@@ -80,6 +80,7 @@ export class Car {
             catchDistance: Number           // distance to recycle previous joystick in 'semi' mode
             */
           };
+        /*
           this.joystick = null;
           this.joystickData = null;
           this.joystickManager = nipplejs.create(options);
@@ -95,7 +96,7 @@ export class Car {
             if (this.joystick === data.instance) {
                 this.joystickData = data;
             };
-          });        
+          });        */
     }
 
     dispose () {
@@ -107,7 +108,7 @@ export class Car {
     update(dt_ms) {
         let dt = dt_ms / 1000.0;
         // calculate steering
-        if (this.cbAccelerometer.checked && this.accelerometerSteering !== null) {
+        if (this.cbAccelerometer.checked ?? this.accelerometerSteering !== null) {
             this.steering = this.accelerometerSteering;
         }
         else if (this.joystickData) {

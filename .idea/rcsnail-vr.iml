@@ -11,5 +11,7 @@
     <orderEntry type="library" name="aframe" level="application" />
     <orderEntry type="library" name="firebaseui" level="application" />
     <orderEntry type="library" name="firebase" level="application" />
+    <orderEntry type="library" name="aframe-log-component" level="application" />
+    <orderEntry type="library" name="aframe-drag-controls" level="application" />
   </component>
 </module>

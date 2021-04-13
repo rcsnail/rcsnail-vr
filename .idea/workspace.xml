@@ -20,13 +20,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d9d7a0a4-6e7d-44e3-bccb-bbae693c8481" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/wheel.glb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.firebaserc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/firebase-tools-instant-win.exe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lastworking.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/rcsnail-vr.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rcsnail-vr.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/car.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/car.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="HTML File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -42,8 +60,10 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../AFrameWebcamCylinder" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -69,6 +89,13 @@
       <workItem from="1616684675869" duration="1143000" />
       <workItem from="1616746811766" duration="9839000" />
       <workItem from="1617344811393" duration="5169000" />
+      <workItem from="1617436814207" duration="3361000" />
+      <workItem from="1617442710582" duration="10316000" />
+      <workItem from="1617645913659" duration="593000" />
+      <workItem from="1617699669131" duration="20693000" />
+      <workItem from="1617875404813" duration="9505000" />
+      <workItem from="1617946897115" duration="42143000" />
+      <workItem from="1618223372094" duration="23640000" />
     </task>
     <servers />
   </component>
@@ -85,14 +112,31 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="2290" y="292" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1617724308587">
+      <screen x="1920" y="54" width="1280" height="984" />
+    </state>
+    <state x="2290" y="292" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040/1920.54.1280.984@1920.54.1280.984" timestamp="1617724308587" />
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1618053414557">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040/1920.54.1280.984@0.0.1920.1040" timestamp="1618053414557" />
     <state x="0" y="0" width="582" height="159" key="GitCloneDialog" timestamp="1616747684547">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="0" y="0" width="582" height="159" key="GitCloneDialog/0.0.1920.1040/1920.54.1280.984@0.0.1920.1040" timestamp="1616747684547" />
+    <state x="616" y="240" key="run.anything.popup" timestamp="1618319895749">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.54.1280.984@0.0.1920.1040" timestamp="1618319895749" />
+    <state x="623" y="225" key="search.everywhere.popup" timestamp="1618303526125">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="225" key="search.everywhere.popup/0.0.1920.1040/1920.54.1280.984@0.0.1920.1040" timestamp="1618303526125" />
   </component>
 </project>
