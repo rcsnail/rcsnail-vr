@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>RCSnail Play Demo v1.3</title>
+    <title>RCSnail Play Demo v1.6</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
     <script src="config.js"></script>
@@ -25,8 +25,8 @@
     <script src="https://unpkg.com/super-hands@^3.0.1/dist/super-hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.js"></script>-->
 
-   <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-   <script src="https://unpkg.com/super-hands/dist/super-hands.min.js"></script>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://unpkg.com/super-hands/dist/super-hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
     <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
@@ -58,14 +58,14 @@
                     </p>
                 </div>
 
-                <!-- see on joistik
-                <div  id="joystick-zone" style="position:relative;" width:100%; height:100%; z-index: 2147483647;" class="hidden">
-                    <video id="remote-video" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline style="width: 100vw;"></video>
-                </div>
-                -->
 
-                <div id="joystick-zone-2" style="position:relative;"> <!--class="hidden"-->
-
+                <div id="joystick-zone-2" style="position:relative;">
+                    <!-- AFrame stseen
+                     webxr: saab muuta, kuhu pannakse
+                     enviroment: maailm kus stseen on
+                     cursor: et vajutada saaks
+                     physics, et asjad maha ei kukuks kohe aga et neid keerata saaks
+                     -->
                     <a-scene
                             background="color: #212"
                             webxr="referenceSpaceType: local"
@@ -74,60 +74,75 @@
                             physics="gravity: 0"
                     >
 
+                        <!-- preloadimiseks -->
                         <a-assets>
                             <video id="remote-video" autoplay preload="auto" crossorigin="anonymous"
                                    loop="true"></video>
                             <a-asset-item id="steering_wheel_vr" src="wheel.glb"></a-asset-item>
                         </a-assets>
-                        <!-- sphere-collider="objects: .steering" laser-controls="hand: left" raycaster="objects: .clickable" cursor>
 
-
-
-                        <a-entity id="leftHand" tracked-controls ></a-entity   sphere-collider="objects: .steering, .clickable">
-                        <a-entity-- id="rightHand"  laser-controls="hand: right"  cursor>AAA  sphere-collider="objects: .clickable" super-hands hand-controls="hand: left"</a-entity-->
-
+                        <!-- kaamera alguspunkt -->
                         <a-camera position="0 1 0"></a-camera>
 
+                        <!-- nupp autosse ühendamiseks;
+                            addtoqueue loob ühenduse
+                            grabbable ja dynamic-body et saaks vajutada
 
-
-
-
-                        <a-box addq id="add-to-queue-vr" position="0.496 1.370 0.437" rotation="0 270 0" color="blue"
+                         -->
+                        <a-box addtoqueue id="add-to-queue-vr" position="0.496 1.370 0.437" rotation="0 270 0"
+                               color="blue"
                                scale="0.2 0.2 0.2" grabbable dynamic-body
                                text="value: add-to-queue-vr; align: center; baseline: center; zOffset:0.51; color: black;"
                                class="clickable"></a-box>
+
+                        <!-- nupp ühenduse katkestamiseks;
+                        closecon katkestab ühenduse
+                        grabbable ja dynamic-body et saaks vajutada -->
                         <a-box closecon id="close-connection" position="0.496 1.370 0.213" rotation="0 270 0"
                                color="red" grabbable dynamic-body
                                scale="0.2 0.2 0.2"
                                text="value: close-conn; align: center; baseline: center; zOffset:0.51; color: black;"
                                class="clickable"></a-box>
-
+                        <!-- nupp auto vahetamiseks;
+                        newcar valib uue auto
+                        grabbable ja dynamic-body et saaks vajutada -->
                         <a-box newcar id="change-car" position="0.496 1.370 0" rotation="0 270 0" color="purple"
                                scale="0.2 0.2 0.2" grabbable dynamic-body
                                text="value: change car; align: center; baseline: center; zOffset:0.51; color: black;"
                                class="clickable"></a-box>
 
-                        <!-- https://stefie.github.io/aframe-curvedimage-calculator/ this for help -->
-                        <a-cylinder radius="1.5"
-                                    height="1.5"
-                                    material="src: #remote-video; side: back"
+                        <!--
+                        silinder kus peal on videopilt.
+                        scale -1 teeb peegelpildi õiget pidi
+                        muud väärtused saab arvutada sellega:
+                        https://stefie.github.io/aframe-curvedimage-calculator/  -->
+                        <a-cylinder radius="2"
+                                    height="3.1417"
+                                    scale="-1 1 1"
+                                    material="uMap: #remote-video; side: back; shader:distortion;"
                                     open-ended="true"
                                     theta-start="120"
                                     theta-length="120"
-                                    position="0 1.5 0">
+                                    position="0 1.5 0.5">
                         </a-cylinder>
 
-
-
+                        <!-- rool
+                        dynamic-body grabbable draggable et saaks kinni võtta ja keerata
+                        -->
                         <a-entity gltf-model="#steering_wheel_vr"
                                   dynamic-body
                                   id="steering_wheel"
                                   grabbable draggable
                                   class="steering" position="0 1.2 -0.5"
-
                         >
                         </a-entity>
 
+                        <!-- vasak kontroller
+                        phase-shift et käed ei läheks asjade vastu kui nuppu alla ei vajutata
+                        drive et rooli hoides sõita saaks
+                        super hands et kinni võtta saab
+
+                        -->
                         <a-entity id="leftHand" physics-collider drive phase-shift
                                   super-hands="colliderEvent: collisions;
                                                colliderEventProperty: els;
@@ -141,7 +156,13 @@
                                   hand-controls="hand: left"
                                   drive
                         ></a-entity>
+                        <!-- parem kontroller
+                        phase-shift et käed ei läheks asjade vastu kui nuppu alla ei vajutata
+                        drive et rooli hoides sõita saaks
+                        super hands et kinni võtta saab
+                        oculus-go-controlsid ka aga need ei tööta miskipärast
 
+                        -->
                         <a-entity id="rightHand" physics-collider drive phase-shift
                                   super-hands="colliderEvent: collisions;
                                                colliderEventProperty: els;
@@ -149,10 +170,10 @@
                                                grabStartButtons: triggerdown;
                                                grabEndButtons: triggerup;
                                                colliderEndEventProperty: clearedEls;"
-
                                   static-body="shape: sphere; sphereRadius: 0.02"
                                   raycaster="objects: .clickable"
                                   hand-controls="hand: right"
+                                  oculus-go-controls
                                   drive>
 
                         </a-entity>
@@ -179,6 +200,6 @@
         </div>
     </div>
 </div>
-<script src="app.js" type="module"></script>
+
 </body>
 </html>

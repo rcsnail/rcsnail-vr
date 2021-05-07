@@ -582,8 +582,8 @@ var initApp = function () {
 
 window.addEventListener('load', initApp);
 
-
-AFRAME.registerComponent('addq', {
+//lisab valitud auto queuesse
+AFRAME.registerComponent('addtoqueue', {
     dependencies: ['raycaster'],
 
     init: function () {
@@ -592,110 +592,13 @@ AFRAME.registerComponent('addq', {
 
         el.addEventListener('gripdown', abi = function () {
             el.setAttribute("material", 'color', "yellow");
-            let q = `https://api.rcsnail.com/v1/queue`;
-
-            postJson(q, {track: remoteTrack, sid: "dev", car: carName})
-                .then(data => {
-                    console.log(JSON.stringify(data)); // JSON-string from `response.json()` call
-                    if (data.queueUrl) {
-                        // listen queue
-                        let url = data.queueUrl.substring(0, data.queueUrl.lastIndexOf("."));
-                        let queueRef = firebase.database().refFromURL(url);
-                        let updateTimer = 0;
-                        let startUpdateTimer = () => {
-                            updateTimer = setTimeout(() => {
-                                updateAlive();
-                            }, data.queueKeepAliveTime ? data.queueKeepAliveTime * 1000 : 60000);
-                        }
-                        let updateAlive = () => {
-                            clearTimeout(updateTimer);
-                            postJson(data.queueUpdateUrl, {});
-                            startUpdateTimer();
-                        }
-                        startUpdateTimer();
-
-                        queueRef.on('value', (dataSnapshot) => {
-                            let queueItem = dataSnapshot.val();
-                            console.log('Queue event ' + JSON.stringify(queueItem));
-                            if (queueItem.rsUrl) {
-                                clearTimeout(updateTimer);
-                                rsPostUrl = queueItem.rsPostUrl;
-                                let rsUrl = queueItem.rsUrl.substring(0, queueItem.rsUrl.lastIndexOf("."));
-                                isOfferer = !queueItem.createAnswer;
-                                firebase.database().refFromURL(rsUrl).on('child_added', (dataSnapshot) => {
-                                    // monitoring remote session url
-                                    let rsItem = dataSnapshot.val();
-                                    console.log('RS event ' + JSON.stringify(rsItem));
-                                    if (!rsItem) {
-                                        return;
-                                    }
-
-                                    ///Object.keys(rsItemList).forEach(function(key) {
-                                    ///  let rsItem = rsItemList[key];
-                                    ///  console.log(key, rsItem);
-                                    switch (rsItem.type) {
-                                        case "answer":
-                                        case "offer":
-                                        case "sdp":
-                                            onIncomingSDP(rsItem);
-                                            break;
-                                        case "candidate":
-                                        case "candidates":
-                                            onIncomingICE(rsItem);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    ///});
-                                });
-
-                                if (!webrtcPeerConnection) {
-                                    webrtcPeerConnection = new RTCPeerConnection(webrtcConfiguration);
-                                    webrtcPeerConnection.onaddstream = onAddRemoteStream;
-                                    webrtcPeerConnection.onicecandidate = onIceCandidate;
-                                    webrtcPeerConnection.ondatachannel = onDataChannel;
-
-                                    controlDataChannel = webrtcPeerConnection.createDataChannel('control', {
-                                        ordered: false,
-                                        maxRetransmits: 0,
-                                    });
-                                    // controlDataChannel.binaryType = 'arraybuffer';
-                                    controlDataChannel.onopen = (event) => {
-                                        console.log("controlDataChannel opened: " + JSON.stringify(event));
-                                        //! connect controller to send commands to car
-                                    };
-                                    controlDataChannel.onmessage = (event) => {
-                                        console.log("controlDataChannel message: " + event.data);
-                                    };
-
-                                    if (isOfferer) {
-                                        getUserMediaPromise().then(() => {
-                                            return webrtcPeerConnection.createOffer({
-                                                offerToReceiveAudio: 1,
-                                                offerToReceiveVideo: 1,
-                                                iceRestart: false,
-                                                voiceActivityDetection: false
-                                            });
-                                        }).then((desc) => {
-                                            console.log("Local description: " + JSON.stringify(desc));
-                                            return webrtcPeerConnection.setLocalDescription(desc);
-                                        }).then(() => {
-                                            let sdp = JSON.parse(JSON.stringify(webrtcPeerConnection.localDescription))
-                                            console.log("Send Local description: " + JSON.stringify(sdp));
-                                            rsPostPromise = rsPostPromise.then(() => postJson(rsPostUrl, sdp));
-                                        }).catch(reportError);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                })
-                .catch(error => console.error(error));
+            addToQueue();
         });
         el.addEventListener('click', abi);
     }
 });
 
+// vajutad nuppu ja closeconnection() meetotit kutsutakse
 AFRAME.registerComponent('closecon', {
     dependencies: ['raycaster'],
 
@@ -710,6 +613,8 @@ AFRAME.registerComponent('closecon', {
 
     }
 });
+
+//vahetab carName sõne ära ehk saab kõiki autosid valida, kui autode nimed muutuvad peab siin ka muutma
 AFRAME.registerComponent('newcar', {
     dependencies: ['raycaster'],
 
@@ -744,8 +649,13 @@ AFRAME.registerComponent('newcar', {
     }
 });
 
+
+//auto juhtimiseks.
+//initis on kui nuppu alla vajutada saab edasi ja kui lahti lasta saab tagasi
+// update vaatab rooli positsiooni ja arvutab kui palju keerama peaks normaliseerides
+// tick saadab kogu aeg pakkette lihtsalt
 AFRAME.registerComponent('drive', {
-    schema:{ type: 'selector', default: "#steering_wheel"},
+    schema: {type: 'selector', default: "#steering_wheel"},
 
     init: function () {
 
@@ -754,23 +664,31 @@ AFRAME.registerComponent('drive', {
 
         el.addEventListener('pistolstart', function () {
             car.gear = 1;
-            car.throttle = 0.5;
+            car.throttle = 0.8;
 
 
         });
         el.addEventListener('gripdown', function () {
             car.gear = -1;
-            car.throttle = 0.5;
+            car.throttle = 0.8;
         });
 
 
     },
-    update: function (){
-        if (this.data.object3D.rotation.z <= 0){
-            car.steering = -0.3;
-        }else{
-            car.steering = 0.3;
+    update: function () {
+        var value = this.data.object3D.rotation.z;
+        var maxvalue = 1000;
+        var minvalue = -1000;
+        var normalize = 2*((value-(minvalue))/(maxvalue-minvalue))-1
+
+        if (normalize >= 1){
+            car.steering = 1;
+        }else if (normalize <= -1){
+            car.steering = -1
+        }else {
+            car.steering = normalize;
         }
+
     },
 
     tick: function () {
@@ -792,6 +710,7 @@ AFRAME.registerComponent('drive', {
     }
 });
 
+// katsetasin, et saada rool ühe kohapeale seisma, aga ei saanud
 AFRAME.registerComponent('stoprotate', {
 
     init: function () {
@@ -808,7 +727,7 @@ AFRAME.registerComponent('stoprotate', {
     }
 });
 
-
+// et kui vajutad nuppu alla siis saad asjade vastu minna, muidu ei saa
 AFRAME.registerComponent('phase-shift', {
     init: function () {
         var el = this.el
@@ -819,4 +738,31 @@ AFRAME.registerComponent('phase-shift', {
             el.setAttribute('collision-filter', {collisionForces: false})
         })
     }
+});
+
+//shaderi näide aga ei tööta õigesti veel
+AFRAME.registerShader('distortion', {
+    schema: {
+        uMap: {
+            type: 'map',
+            is: 'uniform'
+        }
+    },
+    vertexShader: `
+    varying vec2 vUv;
+
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
+  `,
+    fragmentShader: `
+    varying vec2 vUv;
+
+    uniform sampler2D uMap;
+
+    void main() {
+        gl_FragColor = texture2D(uMap, vUv);
+    }
+  `
 });

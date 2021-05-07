@@ -20,17 +20,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d9d7a0a4-6e7d-44e3-bccb-bbae693c8481" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.firebaserc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/firebase-tools-instant-win.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lastworking.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/rcsnail-vr.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rcsnail-vr.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/car.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/car.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,6 +66,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -96,6 +92,14 @@
       <workItem from="1617875404813" duration="9505000" />
       <workItem from="1617946897115" duration="42143000" />
       <workItem from="1618223372094" duration="23640000" />
+      <workItem from="1618384144414" duration="9780000" />
+      <workItem from="1618478703557" duration="7509000" />
+      <workItem from="1618893651259" duration="595000" />
+      <workItem from="1619016457064" duration="594000" />
+      <workItem from="1619603024882" duration="611000" />
+      <workItem from="1619683242945" duration="4000" />
+      <workItem from="1619852738206" duration="3012000" />
+      <workItem from="1620301834527" duration="19704000" />
     </task>
     <servers />
   </component>
@@ -118,6 +122,10 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="719" y="342" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1620311266023">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="719" y="342" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1080/1920.54.1280.1024@0.0.1920.1080" timestamp="1620311266023" />
     <state x="2290" y="292" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1617724308587">
       <screen x="1920" y="54" width="1280" height="984" />
     </state>
@@ -130,6 +138,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="0" y="0" width="582" height="159" key="GitCloneDialog/0.0.1920.1040/1920.54.1280.984@0.0.1920.1040" timestamp="1616747684547" />
+    <state x="461" y="185" key="SettingsEditor" timestamp="1620305774987">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="461" y="185" key="SettingsEditor/0.0.1920.1080/1920.54.1280.1024@0.0.1920.1080" timestamp="1620305774987" />
     <state x="616" y="240" key="run.anything.popup" timestamp="1618319895749">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
