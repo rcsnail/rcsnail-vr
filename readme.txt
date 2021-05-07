@@ -7,3 +7,5 @@ http-server
 
 # Open in Chrome:
 http://localhost:8080
+
+The changes made to make VR solution work is a part of a thesis.
