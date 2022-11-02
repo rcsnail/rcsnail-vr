@@ -4,15 +4,28 @@
     <meta charset="UTF-8">
     <title>RCSnail Play Demo v1.3</title>
     <link rel="manifest" href="manifest.json">
-    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+    <script src="dist/nipplejs.js"></script>
+
+    <script src="https://requirejs.org/docs/release/2.3.6/minified/require.js"></script>
+    <script>
+      var CLOSURE_DEFINES = {
+        'goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING': true
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/google/closure-library@master/closure/goog/base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/google-protobuf@3.21.2/google-protobuf.js"></script>
+    <!--script src="https://cdn.jsdelivr.net/npm/google-protobuf@3.21.2/google-protobuf.min.js"></script-->
+
     <script src="config.js"></script>
     <script src="common.js"></script>
     <!--script src="car.js"></script-->
     <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
-    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
-    <!--script src="https://aframe.io/releases/0.7.1/aframe.min.js"></script-->
-    <script src="dist/nipplejs.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>

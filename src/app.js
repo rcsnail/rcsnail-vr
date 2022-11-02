@@ -1,4 +1,6 @@
+
 import { Car } from "./car.js";
+import * as RcsCarMessages from "./proto/js/pbrcscarmessages.lib.js";
 
 function getUiConfig() {
   return {
@@ -199,6 +201,7 @@ let rsPostPromise = Promise.resolve();
 let car;
 //let remoteTrack = "test";
 let remoteTrack = "eeden";
+let carId = "eeden_i8_02";
 
 let reportError = function (errmsg) { 
   console.error(errmsg); 
@@ -278,17 +281,28 @@ function onDataChannel(event) {
   telemetryDataChannel.onmessage = handleTelmetryMessage;
   telemetryDataChannel.onopen = handleTelemetryChannelOpen;
   telemetryDataChannel.onclose = handleTelemetryChannelClose;
-  controlDataChannel = telemetryDataChannel;
+  // controlDataChannel = telemetryDataChannel;
 }
 
 function handleTelmetryMessage(event) {
-  let data = JSON.parse(event.data);
   let recvTime = (new Date()).getTime();
-  if (data.c && data.c2) {
-    console.log(`Telemetry message ${recvTime - data.c} ${data.c2 - data.c}: + ${event.data}`);
+  if (event.data instanceof ArrayBuffer) {
+    let carResponse = proto.rcsCar.CarResponse.deserializeBinary(event.data);
+    let data = carResponse.toObject();
+    if (data.messagetime && data.lastrecvmessagetime) {
+      console.log(`Telemetry message ${recvTime - data.lastrecvmessagetime} ${recvTime - data.messagetime}: ${data.cartimestamp} - ${data.debugrespstr}`);
+    } else {
+      console.log(`Telemetry message: ${data.cartimestamp} - ${data.debugrespstr}`);
+    }  
   } else {
-    console.log("Telemetry message: " + event.data);
+    let data = JSON.parse(event.data);
+    if (data.c && data.c2) {
+      console.log(`Telemetry message ${recvTime - data.c} ${data.c2 - data.c}: + ${event.data}`);
+    } else {
+      console.log("Telemetry message: " + event.data);
+    }  
   }
+
   /*var el = document.createElement("p");
   var txtNode = document.createTextNode(event.data);
   
@@ -319,7 +333,7 @@ var addToQueue = function() {
   closeConnectionButton.disabled = false;
   let q = `https://api.rcsnail.com/v1/queue`;
   isOfferer = true;
-  postJson(q, {track: remoteTrack, sid: "dev", car: "eeden_i8_02"})
+  postJson(q, {sid: "dev", car: carId})
   .then(data => {
     console.log(JSON.stringify(data)); // JSON-string from `response.json()` call
     if (data.queueUrl) {
@@ -342,7 +356,7 @@ var addToQueue = function() {
       queueRef.on('value', (dataSnapshot) => {
         let queueItem = dataSnapshot.val();
         console.log('Queue event ' + JSON.stringify(queueItem));
-        if (queueItem.rsUrl) {
+        if (queueItem && queueItem.rsUrl) {
           clearTimeout(updateTimer);
           rsPostUrl = queueItem.rsPostUrl;
           let rsUrl = queueItem.rsUrl.substring(0, queueItem.rsUrl.lastIndexOf("."));
@@ -457,8 +471,24 @@ function updateCar() {
   // send control data
   car.update(20);
   let sendTime = (new Date()).getTime();
+  controlPacketNo++;
+
+  let carMessage = new proto.rcsCar.CarCommand();
+  carMessage.setPacketno(controlPacketNo);
+  carMessage.setMessagetime(sendTime);
+  carMessage.setGear(car.gear);
+  carMessage.setSteering(car.steering);
+  carMessage.setThrottle(car.throttle);
+  carMessage.setBraking(car.braking);
+
+  // Serializes to a UInt8Array.
+  var bytes = carMessage.serializeBinary();
+  if (controlDataChannel && controlDataChannel.readyState === "open") {
+    controlDataChannel.send(bytes);
+  }
+  
   let data = {
-    "p": controlPacketNo++,
+    "p": controlPacketNo,
     "c": sendTime,
     "g": car.gear,
     "s": car.steering,
@@ -472,9 +502,11 @@ function updateCar() {
   controlDataChannel.send(buf);
   */
   let s = JSON.stringify(data);
+  /*
   if (controlDataChannel && controlDataChannel.readyState === "open") {
     controlDataChannel.send(s);
   }
+  */
   controlElement.textContent = s;
 
   if (vrGamepads.length === 1) {
