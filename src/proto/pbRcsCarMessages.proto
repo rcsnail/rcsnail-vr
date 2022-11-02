@@ -1,0 +1,28 @@
+// Messages sent between the car and driver
+syntax = "proto3";
+package rcsCar;
+
+message CarCommand {
+  float steering = 1;
+  sint32 gear = 2;
+  float throttle = 3;
+  float braking = 4;
+  int64 messageTime = 5;
+  int64 lastRecvMessageTime = 6;
+  string debugStr = 7;
+  bytes customState = 8;
+}
+
+message CarResponse {
+  float steering = 1;
+  sint32 gear = 2;
+  float throttle = 3;
+  float braking = 4;
+  optional int64 messageTime = 5;
+  int64 lastRecvMessageTime = 6;
+  int32 batVoltage_mV = 7;
+  int32 steeringAdc = 8;
+  int32 carTimestamp = 9;
+  string debugRespStr = 10;
+  bytes customResponse = 11;
+}
