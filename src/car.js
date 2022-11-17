@@ -1,6 +1,12 @@
 /* 
  * Car class for handling gamepad, accelerometer, onscreen joystic and keyboard
  */
+function mapValue(value, fromA, fromB, toA, toB) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  return toA + (toB - toA) / (fromB - fromA) * (value - fromA);
+}
 
 export class Car {
     constructor(joysticZone) {
@@ -300,13 +306,6 @@ export class Car {
           }
         }
       }
-    }
-
-    mapValue(value, fromA, fromB, toA, toB) {
-      if (value === null || value === undefined) {
-        return null;
-      }
-      return toA + (toB - toA) / (fromB - fromA) * (value - fromA);
     }
     
     updateGamepad() {
