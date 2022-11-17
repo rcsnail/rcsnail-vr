@@ -339,6 +339,7 @@ export class Car {
       else if (this.gamepad.id === "Logitech Formula Force RX" || // Windows: Logitech Formula Force RX
           this.gamepad.id === "G29 Driving Force Racing Wheel (Vendor: 046d Product: c24f)" || // Windows: Logitech G29
           this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c294)" || // Ubuntu: Logitech G29
+          this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c24f)" || // Ubuntu: Logitech G29
           false) {
         this.gamepadSteering = this.gamepad.axes[0] || 0.0;
         this.gamepadThrottle =  mapValue(this.gamepad.axes[2], 1.0, -1.0, 0.0, 1.0) || 0.0;
