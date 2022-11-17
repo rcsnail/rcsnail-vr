@@ -11,6 +11,7 @@ message CarCommand {
   int64 lastRecvMessageTime = 6;
   string debugStr = 7;
   bytes customState = 8;
+  int32 packetNo = 9; 
 }
 
 message CarResponse {
@@ -18,11 +19,14 @@ message CarResponse {
   sint32 gear = 2;
   float throttle = 3;
   float braking = 4;
-  optional int64 messageTime = 5;
+  int64 messageTime = 5;
   int64 lastRecvMessageTime = 6;
   int32 batVoltage_mV = 7;
   int32 steeringAdc = 8;
-  int32 carTimestamp = 9;
+  int64 carTimestamp = 9;
   string debugRespStr = 10;
   bytes customResponse = 11;
+  int32 responseDelay = 12;  // known delay between received command and sent response
+  int32 lastRecvPacketNo = 13;
+  float speed = 14;          // vehicle speed m/s
 }

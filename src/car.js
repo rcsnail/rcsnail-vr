@@ -1,4 +1,6 @@
-
+/* 
+ * Car class for handling gamepad, accelerometer, onscreen joystic and keyboard
+ */
 
 export class Car {
     constructor(joysticZone) {
@@ -30,6 +32,17 @@ export class Car {
         window.addEventListener('keyup', event => this.keyUp(event));
         this.cbAccelerometer = document.getElementById("cb-accelerometer");
 
+        this.vrGamepads = [];
+        this.gamepad;        
+        this.gamepadSteering = 0.0;
+        this.gamepadThrottle = 0.0;
+        this.gamepadBraking = 0.0;
+        this.gamepadGearUpKey_down = false;
+        this.gamepadGearDownKey_down = false;
+        window.addEventListener('gamepadconnected', this.gamepadConnected.bind(this));      
+        window.addEventListener('gamepaddisconnected', this.gamepadDisconnected.bind(this));      
+        this.enumerateGamepads();
+      
         this.accelerometerSteering = null;
         let accelerometer = null;
         try {
@@ -98,16 +111,25 @@ export class Car {
           });        
     }
 
+    
     dispose () {
         window.removeEventListener('keydown', this.keyDown);
         window.removeEventListener('keyup', this.keyUp);
+        window.removeEventListener('gamepadconnected', this.gamepadConnected);
+        window.removeEventListener('gamepaddisconnected', this.gamepadDisconnected);
     }
 
-    // dt_ms in ms
+    // Update car control calculation. Input preference in priority order: 
+    // Gamepad, accelerator, onscreen joystic, keyboard
+    // Param dt_ms in ms
     update(dt_ms) {
         let dt = dt_ms / 1000.0;
+        this.updateGamepad();
+        
         // calculate steering
-        if (this.cbAccelerometer.checked && this.accelerometerSteering !== null) {
+        if (this.gamepad) {
+          this.steering = this.gamepadSteering;
+        } else if (this.cbAccelerometer.checked && this.accelerometerSteering !== null) {
             this.steering = this.accelerometerSteering;
         }
         else if (this.joystickData) {
@@ -128,7 +150,11 @@ export class Car {
         }
 
         // calculating gear, throttle, braking
-        if (this.joystickData) {
+        if (this.gamepad) {
+          this.throttle = this.gamepadThrottle;
+          this.braking = this.gamepadBraking;
+          // gear is updated directly in updateGamepad()
+        } else if (this.joystickData) {
             let dy = this.joystickData.force * Math.sin(this.joystickData.angle.radian) / 1.5;
             dy = Math.min(1.0, Math.max(-1.0, dy));
             if (this.gear == 0 && Math.abs(dy) > 0.15) {  
@@ -190,8 +216,8 @@ export class Car {
                 this.virtual_speed + dt * (this.throttle - this.braking_k * this.braking)));
         }
         
-        // conditions to change the direction
-        if (!this.up_down && !this.down_down && !this.joystickData && this.virtual_speed < 0.01) {
+        // conditions to change the direction for keyboard driving only
+        if (!this.up_down && !this.down_down && !this.joystickData && !this.gamepad && this.virtual_speed < 0.01) {
             this.gear = 0;
         }
     }
@@ -220,4 +246,148 @@ export class Car {
         // console.log('keyup', event.code);
         this.handle_key_event(event);
     }      
+
+    gamepadConnected(event) {
+      console.log('Gamepad connected ' + event.toString());
+      this.enumerateGamepads();
+      if (this.gamepad != null) {
+        console.log('Gamepad connected ' + (this.gamepad.id ?? ''));
+      }
+    }
+  
+    gamepadDisconnected(event) {
+      if (this.gamepad != null) {
+        console.log('Gamepad disconnected');
+      }
+      this.enumerateGamepads();
+    }
+
+    enumerateGamepads() {
+      // From https://github.com/toji/webvr.info/blob/master/samples/XX-vr-controllers.html
+      // Loop over every gamepad and if we find any that have a pose use it.
+      var gamepads = navigator.getGamepads();
+      this.gamepad = null;
+      for (var i = 0; i < gamepads.length; ++i) {    
+        var gp = gamepads[i];
+        // The array may contain undefined gamepads, so check for that as
+        // well as a non-null pose. VR clicker devices such as the Carboard
+        // touch handler for Daydream have a displayId but no pose.
+        if (gp) {
+          if (!this.gamepad) {
+            // use the first gamepad for driving
+            this.gamepad = gp;
+          }
+          if (gp.pose || gp.displayId)
+            vrGamepads.push(gp);
+          if ("hapticActuators" in gp && gp.hapticActuators.length > 0) {
+            for (var j = 0; j < gp.buttons.length; ++j) {
+              if (gp.buttons[j].pressed) {
+                // Vibrate the gamepad using to the value of the button as
+                // the vibration intensity.
+                gp.hapticActuators[0].pulse(gp.buttons[j].value, 100);
+                break;
+              }
+            }
+          }
+          if ("vibrationActuator" in gp && gp.vibrationActuator) {
+            //? gp.vibrationActuator.pulse(1.0, 200);
+            gp.vibrationActuator.playEffect('dual-rumble', {
+              startDelay: 0,
+              duration: 200,
+              weakMagnitude: 1.0,
+              strongMagnitude: 1.0,
+            });
+          }
+        }
+      }
+    }
+
+    mapValue(value, fromA, fromB, toA, toB) {
+      if (value === null || value === undefined) {
+        return null;
+      }
+      return toA + (toB - toA) / (fromB - fromA) * (value - fromA);
+    }
+    
+    updateGamepad() {
+      var gamepads = navigator.getGamepads()
+      this.gamepad = gamepads.length > 0 ? gamepads[0] : null;
+      if (!this.gamepad) {
+        return;
+      }
+      if (this.gamepad.id === "B66E") { // Windows: Thrustmaster T300
+        this.gamepadSteering = this.gamepad.axes[0] || 0.0;
+        this.gamepadThrottle =  mapValue(this.gamepad.axes[5], 1.0, -1.0, 0.0, 1.0) || 0.0;
+        this.gamepadBraking = mapValue(this.gamepad.axes[1], 1.0, -1.0, 0.0, 1.0) || 0.0;
+
+        const upButton = this.gamepad.buttons[1];
+        if (upButton) {
+          if (upButton.pressed && !this.gamepadGearUpKey_down && this.gear < 1) {
+            this.gear++;
+          }
+          this.gamepadGearUpKey_down = upButton.pressed;
+        }
+
+        const downButton = this.gamepad.buttons[0];
+        if (downButton) {
+          if (downButton.pressed && !this.gamepadGearDownKey_down && this.gear > -1) {
+            this.gear--;
+          }
+          this.gamepadGearDownKey_down = downButton.pressed;
+        }
+      }
+      else if (this.gamepad.id === "Logitech Formula Force RX" || // Windows: Logitech Formula Force RX
+          this.gamepad.id === "G29 Driving Force Racing Wheel (Vendor: 046d Product: c24f)" || // Windows: Logitech G29
+          this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c294)" || // Ubuntu: Logitech G29
+          false) {
+        this.gamepadSteering = this.gamepad.axes[0] || 0.0;
+        this.gamepadThrottle =  mapValue(this.gamepad.axes[2], 1.0, -1.0, 0.0, 1.0) || 0.0;
+        if (this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c294)") {
+          // for some reason in Linux brake pedal has different axis for the same wheel
+          this.gamepadBraking = mapValue(this.gamepad.axes[3], 1.0, -1.0, 0.0, 1.0) || 0.0;
+        } else {
+          this.gamepadBraking = mapValue(this.gamepad.axes[5], 1.0, -1.0, 0.0, 1.0) || 0.0;
+        }
+
+        const upButton = this.gamepad.buttons[4];
+        if (upButton) {
+          if (upButton.pressed && !this.gamepadGearUpKey_down && this.gear < 1) {
+            this.gear++;
+          }
+          this.gamepadGearUpKey_down = upButton.pressed;
+        }
+
+        const downButton = this.gamepad.buttons[5];
+        if (downButton) {
+          if (downButton.pressed && !this.gamepadGearDownKey_down && this.gear > -1) {
+            this.gear--;
+          }
+          this.gamepadGearDownKey_down = downButton.pressed;
+        }
+      }
+      else if (this.gamepad.id === "Xbox 360 Controller (XInput STANDARD GAMEPAD)" ||  // XBox gamepad in Windows
+          this.gamepad.id === "Microsoft Controller (STANDARD GAMEPAD Vendor: 045e Product: 02ea)") { // XBox gamepad in Linux
+        // this is default mapping
+        this.gamepadSteering = this.gamepad.axes[0] || 0.0;
+        this.gamepadThrottle = this.gamepad.buttons[7] ? this.gamepad.buttons[7].value : 0.0;
+        this.gamepadBraking = this.gamepad.buttons[6] ? this.gamepad.buttons[6].value : 0.0;
+
+        const upButton = this.gamepad.buttons[5];
+        if (upButton) {
+          if (upButton.pressed && !this.gamepadGearUpKey_down && this.gear < 1) {
+            this.gear++;
+          }
+          this.gamepadGearUpKey_down = upButton.pressed;
+        }
+
+        const downButton = this.gamepad.buttons[4];
+        if (downButton) {
+          if (downButton.pressed && !this.gamepadGearDownKey_down && this.gear > -1) {
+            this.gear--;
+          }
+          this.gamepadGearDownKey_down = downButton.pressed;
+        }
+      }
+    }
+
 }

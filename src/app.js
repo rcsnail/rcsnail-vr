@@ -1,6 +1,9 @@
+/* 
+ * UI based on example from https://github.com/firebase/firebaseui-web
+ */
 
 import { Car } from "./car.js";
-import * as RcsCarMessages from "./proto/js/pbrcscarmessages.lib.js";
+import "./proto/js/pbrcscarmessages.lib.js";
 
 function getUiConfig() {
   return {
@@ -184,13 +187,15 @@ function postJson(url = ``, data = {}) {
 
 let rsPostUrl;
 let html5VideoElement;
+let carIdElement;
 let controlElement;
+let responseElement;
 let controlGamepadElement;
-let vrGamepads = [];
 let queueButton;
 let closeConnectionButton;
 let webrtcPeerConnection;
 let webrtcConfiguration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] };
+let queueUpdateTimer = 0;
 let controlDataChannel;
 let telemetryDataChannel;
 let localStream;
@@ -288,12 +293,26 @@ function handleTelmetryMessage(event) {
   let recvTime = (new Date()).getTime();
   if (event.data instanceof ArrayBuffer) {
     let carResponse = proto.rcsCar.CarResponse.deserializeBinary(event.data);
-    let data = carResponse.toObject();
-    if (data.messagetime && data.lastrecvmessagetime) {
-      console.log(`Telemetry message ${recvTime - data.lastrecvmessagetime} ${recvTime - data.messagetime}: ${data.cartimestamp} - ${data.debugrespstr}`);
+    let carResponseObject = carResponse.toObject();
+
+    let response = {
+      "Speed": (3.6 * carResponseObject.speed).toFixed(1),
+      "Steering": carResponseObject.steering.toFixed(3),
+      "DebugResp": carResponseObject.debugrespstr,
+    }
+    let s = JSON.stringify(response);
+    responseElement.textContent = s;
+
+    /*
+    if (carResponseObject.messagetime && carResponseObject.lastrecvmessagetime) {
+      console.log(`Telemetry message ${recvTime - carResponseObject.lastrecvmessagetime} ${recvTime - data.messagetime}: \n` +
+        `Speed: ${carResponseObject.speed}\n` + 
+        `Steering: ${carResponseObject.steering}\n` + 
+        `DebugStr: ${carResponseObject.debugrespstr}`);
     } else {
-      console.log(`Telemetry message: ${data.cartimestamp} - ${data.debugrespstr}`);
-    }  
+      console.log(`Telemetry message: ${carResponseObject.cartimestamp} - ${carResponseObject.debugrespstr}`);
+    } 
+    */ 
   } else {
     let data = JSON.parse(event.data);
     if (data.c && data.c2) {
@@ -329,6 +348,8 @@ function handleTelemetryChannelClose(event) {
  * Adds user to queue
  */
 var addToQueue = function() {
+  carId = carIdElement.value;
+  controlInterval = setInterval(() => updateCar(), 20);
   queueButton.disabled = true;
   closeConnectionButton.disabled = false;
   let q = `https://api.rcsnail.com/v1/queue`;
@@ -340,24 +361,26 @@ var addToQueue = function() {
       // listen queue
       let url = data.queueUrl.substring(0, data.queueUrl.lastIndexOf("."));
       let queueRef = firebase.database().refFromURL(url);
-      let updateTimer = 0;
-      let startUpdateTimer = () => {
-        updateTimer = setTimeout(() => {
+      clearTimeout(queueUpdateTimer);
+      let startQueueUpdateTimer = () => {
+        queueUpdateTimer = setTimeout(() => {
           updateAlive();
         }, data.queueKeepAliveTime ?  data.queueKeepAliveTime * 1000 : 60000);
       }
       let updateAlive = () => {
-        clearTimeout(updateTimer);
-        postJson(data.queueUpdateUrl, {});
-        startUpdateTimer();
+        clearTimeout(queueUpdateTimer);
+        postJson(data.queueUpdateUrl, {}).then(result => {
+          // start the timer again if the result was OK
+          startQueueUpdateTimer();
+        });
       }
-      startUpdateTimer();
+      startQueueUpdateTimer();
       
       queueRef.on('value', (dataSnapshot) => {
         let queueItem = dataSnapshot.val();
         console.log('Queue event ' + JSON.stringify(queueItem));
         if (queueItem && queueItem.rsUrl) {
-          clearTimeout(updateTimer);
+          clearTimeout(queueUpdateTimer);
           rsPostUrl = queueItem.rsPostUrl;
           let rsUrl = queueItem.rsUrl.substring(0, queueItem.rsUrl.lastIndexOf("."));
           isOfferer = !queueItem.createAnswer;
@@ -434,8 +457,11 @@ var addToQueue = function() {
 
 function closeConnection() {
   closeConnectionButton.disabled = true;
-  webrtcPeerConnection.close();
-  webrtcPeerConnection = null;
+  clearInterval(controlInterval);
+  if (webrtcPeerConnection) {
+    webrtcPeerConnection.close();
+    webrtcPeerConnection = null;
+  }
 
   if (localStream) {
     const videoTracks = localStream.getVideoTracks();
@@ -486,33 +512,24 @@ function updateCar() {
   if (controlDataChannel && controlDataChannel.readyState === "open") {
     controlDataChannel.send(bytes);
   }
-  
+
   let data = {
     "p": controlPacketNo,
-    "c": sendTime,
+    // "c": sendTime,
     "g": car.gear,
-    "s": car.steering,
-    "t": car.throttle,
-    "b": car.braking    
+    "s": car.steering.toFixed(3),
+    "t": car.throttle.toFixed(2),
+    "b": car.braking.toFixed(2),
   }
-  /*
-  // for sending in binary format
-  let enc = new TextEncoder();
-  let buf = enc.encode(JSON.stringify(data));
-  controlDataChannel.send(buf);
-  */
   let s = JSON.stringify(data);
-  /*
-  if (controlDataChannel && controlDataChannel.readyState === "open") {
-    controlDataChannel.send(s);
-  }
-  */
   controlElement.textContent = s;
 
-  if (vrGamepads.length === 1) {
-    s = vrGamepads[0].id + " " + JSON.stringify(vrGamepads[0]) + " " + JSON.stringify(vrGamepads[0].pose);
+  if (car.vrGamepads.length > 0) {
+    s = car.vrGamepads[0].id + " " + JSON.stringify(car.vrGamepads[0]) + " " + JSON.stringify(car.vrGamepads[0].pose);
+  } else if (car.gamepad) {
+    s = car.gamepad.id + " - " + JSON.stringify(car.gamepad);
   } else {
-    s = vrGamepads.length.toString();
+    s = "No gamepad connected";
   }
   controlGamepadElement.textContent = s;
 }
@@ -524,9 +541,9 @@ var initApp = function() {
   let joystickZoneElement = document.getElementById('joystick-zone');
   car = new Car(joystickZoneElement);
   html5VideoElement = document.getElementById('remote-video');
+  carIdElement = document.getElementById('car-id');
   controlElement = document.getElementById('control');
-  controlInterval = setInterval(() => updateCar(), 20);
-  // clearInterval(controlInterval);
+  responseElement = document.getElementById('response');
   document.getElementById('btn-fullscreen').addEventListener('click', function() {
     //html5VideoElement.
     joystickZoneElement.requestFullscreen().catch(err => {
@@ -551,6 +568,9 @@ var initApp = function() {
   closeConnectionButton = document.getElementById('close-connection');
   closeConnectionButton.addEventListener('click', closeConnection);
   closeConnectionButton.disabled = true;
+
+  controlGamepadElement = document.getElementById('control-gamepad');
+
 /*
   document.getElementById('delete-account').addEventListener(
       'click', function() {
@@ -579,31 +599,6 @@ var initApp = function() {
       'input[name="emailSignInMethod"][value="' + getEmailSignInMethod() + '"]')
       .checked = true;
 */ 
-
-  // Loop over every gamepad and if we find any that have a pose use it.
-  var gamepads = navigator.getGamepads();
-  for (var i = 0; i < gamepads.length; ++i) {
-    var gamepad = gamepads[i];
-    // The array may contain undefined gamepads, so check for that as
-    // well as a non-null pose. VR clicker devices such as the Carboard
-    // touch handler for Daydream have a displayId but no pose.
-    if (gamepad) {
-      if (gamepad.pose || gamepad.displayId)
-        vrGamepads.push(gamepad);
-      if ("hapticActuators" in gamepad && gamepad.hapticActuators.length > 0) {
-        for (var j = 0; j < gamepad.buttons.length; ++j) {
-          if (gamepad.buttons[j].pressed) {
-            // Vibrate the gamepad using to the value of the button as
-            // the vibration intensity.
-            gamepad.hapticActuators[0].pulse(gamepad.buttons[j].value, 100);
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  controlGamepadElement = document.getElementById('control-gamepad');
 };
 
 window.addEventListener('load', initApp);
