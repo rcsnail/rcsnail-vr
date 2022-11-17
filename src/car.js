@@ -342,7 +342,9 @@ export class Car {
           false) {
         this.gamepadSteering = this.gamepad.axes[0] || 0.0;
         this.gamepadThrottle =  mapValue(this.gamepad.axes[2], 1.0, -1.0, 0.0, 1.0) || 0.0;
-        if (this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c294)") {
+        if (this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c294)" ||
+            this.gamepad.id === "Logitech G29 Driving Force Racing Wheel (Vendor: 046d Product: c24f)" ||
+            false) {
           // for some reason in Linux brake pedal has different axis for the same wheel
           this.gamepadBraking = mapValue(this.gamepad.axes[3], 1.0, -1.0, 0.0, 1.0) || 0.0;
         } else {
