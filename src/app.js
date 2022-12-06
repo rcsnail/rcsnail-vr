@@ -349,6 +349,7 @@ function handleTelemetryChannelClose(event) {
  */
 var addToQueue = function() {
   carId = carIdElement.value;
+  localStorage.carId = carId;
   controlInterval = setInterval(() => updateCar(), 20);
   queueButton.disabled = true;
   closeConnectionButton.disabled = false;
@@ -542,6 +543,9 @@ var initApp = function() {
   car = new Car(joystickZoneElement);
   html5VideoElement = document.getElementById('remote-video');
   carIdElement = document.getElementById('car-id');
+  if (!!localStorage.carId) {
+    carIdElement.value = localStorage.carId;
+  }
   controlElement = document.getElementById('control');
   responseElement = document.getElementById('response');
   document.getElementById('btn-fullscreen').addEventListener('click', function() {
