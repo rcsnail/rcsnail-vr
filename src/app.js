@@ -303,6 +303,14 @@ function handleTelmetryMessage(event) {
     let s = JSON.stringify(response);
     responseElement.textContent = s;
 
+    if (!!carResponseObject.debugrespstr) {
+      var timeStr = new Date().toISOString().substring(11, 23);
+      var node = document.createElement("div");
+      node.appendChild(document.createTextNode(timeStr + ": " + carResponseObject.debugrespstr));
+      document.getElementById("carLog").appendChild(node);
+      console.log(`car debug: ${timeStr}": ${carResponseObject.debugrespstr}`);
+    }
+
     /*
     if (carResponseObject.messagetime && carResponseObject.lastrecvmessagetime) {
       console.log(`Telemetry message ${recvTime - carResponseObject.lastrecvmessagetime} ${recvTime - data.messagetime}: \n` +
