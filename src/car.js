@@ -314,7 +314,8 @@ export class Car {
       if (!this.gamepad) {
         return;
       }
-      if (this.gamepad.id === "B66E") { // Windows: Thrustmaster T300
+      if (this.gamepad.id === "B66E" || // Windows: Thrustmaster T300
+          this.gamepad.id === "B66E (Vendor: 044f Product: b66e)") { // Windows: Thrustmaster T300
         this.gamepadSteering = this.gamepad.axes[0] || 0.0;
         this.gamepadThrottle =  mapValue(this.gamepad.axes[5], 1.0, -1.0, 0.0, 1.0) || 0.0;
         this.gamepadBraking = mapValue(this.gamepad.axes[1], 1.0, -1.0, 0.0, 1.0) || 0.0;
