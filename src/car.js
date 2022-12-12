@@ -45,6 +45,8 @@ export class Car {
         this.gamepadBraking = 0.0;
         this.gamepadGearUpKey_down = false;
         this.gamepadGearDownKey_down = false;
+        this.gamepadBlinkerLeftKey_down = false;
+        this.gamepadBlinkerRightKey_down = false;
         window.addEventListener('gamepadconnected', this.gamepadConnected.bind(this));      
         window.addEventListener('gamepaddisconnected', this.gamepadDisconnected.bind(this));      
         this.enumerateGamepads();
@@ -335,6 +337,11 @@ export class Car {
           }
           this.gamepadGearDownKey_down = downButton.pressed;
         }
+
+        const blinkerLeftButton = this.gamepad.buttons[10];
+        const blinkerRightButton = this.gamepad.buttons[9];
+        this.gamepadBlinkerLeftKey_down = blinkerLeftButton && blinkerLeftButton.pressed;
+        this.gamepadBlinkerRightKey_down = blinkerRightButton && blinkerRightButton.pressed;
       }
       else if (this.gamepad.id === "Logitech Formula Force RX" || // Windows: Logitech Formula Force RX
           this.gamepad.id === "G29 Driving Force Racing Wheel (Vendor: 046d Product: c24f)" || // Windows: Logitech G29

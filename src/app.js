@@ -515,6 +515,15 @@ function updateCar() {
   carMessage.setSteering(car.steering);
   carMessage.setThrottle(car.throttle);
   carMessage.setBraking(car.braking);
+  let flags = 0;
+  if (car.gamepadBlinkerLeftKey_down) {
+    flags |= proto.rcsCar.CarCommand.Flags.LIGHTS_LEFT;
+  }
+  if (car.gamepadBlinkerRightKey_down) {
+    flags |= proto.rcsCar.CarCommand.Flags.LIGHTS_RIGHT;
+  }
+  carMessage.setFlags(flags);
+
 
   // Serializes to a UInt8Array.
   var bytes = carMessage.serializeBinary();
@@ -600,7 +609,6 @@ var initApp = function() {
       .checked = true;
 */
 
-/*
   document.getElementById('email-signInMethod-password').addEventListener(
       'change', handleConfigChange);
   document.getElementById('email-signInMethod-emailLink').addEventListener(
@@ -610,7 +618,6 @@ var initApp = function() {
   document.querySelector(
       'input[name="emailSignInMethod"][value="' + getEmailSignInMethod() + '"]')
       .checked = true;
-*/ 
 };
 
 window.addEventListener('load', initApp);
